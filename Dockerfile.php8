@@ -1,0 +1,21 @@
+FROM php:8 
+
+# Setup build environment
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt update;\
+    apt-get -fqqy install curl wget git vim sudo;
+
+# Setup vip-go-ci user and environment
+RUN groupadd -r vip-go-ci -g 1000; \
+    useradd -u 1000 -r -g vip-go-ci -m -d /opt/vip-go-ci -c "vip-go-ci user" vip-go-ci; \
+    cd /opt/vip-go-ci; \
+    git clone https://github.com/Automattic/vip-go-ci.git; \
+    chown -R vip-go-ci:vip-go-ci /opt/vip-go-ci; \
+    sudo -u vip-go-ci /bin/bash /opt/vip-go-ci/vip-go-ci/tools-init.sh; \
+    ln -s /opt/vip-go-ci/vip-go-ci-tools/phpcs/bin/phpcs /usr/local/bin/phpcs; \
+    ln -s /usr/local/bin/php /usr/bin/php; \
+    ln -s /opt/vip-go-ci/vip-go-ci/vip-go-ci.php /opt/vip-go-ci/vip-go-ci.php;
+
+WORKDIR /opt/vip-go-ci
+
+USER vip-go-ci
